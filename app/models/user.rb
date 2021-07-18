@@ -4,8 +4,6 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-
-
   has_many :posts
   has_many :comments, dependent: :destroy
   has_many :likes, dependent: :destroy
@@ -15,6 +13,11 @@ class User < ApplicationRecord
   has_many :invitees, through: :friendship_invitees
   has_many :friendship_inviters, foreign_key: :invitee_id, class_name: 'Friendship'
   has_many :inviters, through: :friendship_inviters
+
+  validates :name, presence: true, length: { in: 3..20 }
+  validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }, uniqueness: true
+  validates :password, presence: true
+  validates :password_confirmation, presence: true
 
   def friends
     invitee_friends + inviter_friends
