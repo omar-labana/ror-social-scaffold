@@ -11,7 +11,6 @@ RSpec.describe 'friendship model associations', type: :system do
                 email: 'ramo@mero.com',
                 gravatar_url: '123456789',
                 password: '123456789', password_confirmation: '123456789')
-
   end
 
   it 'adds a user to your friend list' do
@@ -50,7 +49,7 @@ RSpec.describe 'friendship model associations', type: :system do
     click_button 'Log in'
     expect(page).to have_content('Accept')
   end
-  
+
   # same as test 2
   it 'end friendship' do
     Friendship.create(inviter_id: User.second.id, invitee_id: User.first.id, accepted: false)
@@ -61,5 +60,4 @@ RSpec.describe 'friendship model associations', type: :system do
     click_link 'Accept'
     expect(page).to have_content('End friendship')
   end
-
 end

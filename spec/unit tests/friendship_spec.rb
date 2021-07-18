@@ -12,7 +12,6 @@ RSpec.describe Friendship do
   end
 
   describe 'creation' do
-    
     it 'valid association between two existing users' do
       friendship = Friendship.new(inviter_id: User.first.id, invitee_id: User.second.id, accepted: false)
       expect(friendship.valid?).to eq(true)
@@ -37,8 +36,5 @@ RSpec.describe Friendship do
       friendship.update(accepted: true)
       expect(friendship.accepted).to eq(true)
     end
-
   end
 end
-
-
