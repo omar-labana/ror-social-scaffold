@@ -27,7 +27,7 @@ RSpec.describe Friendship do
     it 'validates recursive relations' do
       friendship = Friendship.new(inviter_id: User.first.id, invitee_id: User.first.id, accepted: false)
       friendship.valid?
-      expect(friendship.errors.full_messages).to eq(["Inviter can't ask themselves for friendship"])
+      expect(friendship.errors.full_messages).to eq(["Inviter You can't add yourself"])
     end
   end
 
