@@ -2,23 +2,36 @@ class Friendship < ApplicationRecord
   validate :none_recursive
   validate :none_repeating, on: :create
 
-  belongs_to :inviter, class_name: 'User'
-  belongs_to :invitee, class_name: 'User'
+  belongs_to :user
+  belongs_to :friend, class_name: 'User'
 
-  scope :accepted, -> { where(accepted: true) }
-  scope :pending, -> { where(accepted: false) }
+  def self.safe_create(user_id, friend_id)
+    transaction do
+      create!(user_id: user_id,
+              friend_id: friend_id, status: true)
+      create!(user_id: friend_id,
+              friend_id: user_id, status: false)
+    end
+  end
+
+  def self.safe_delete(user_id, friend_id)
+    transaction do
+      find_by(user_id: user_id, friend_id: friend_id).delete
+      find_by(user_id: friend_id, friend_id: user_id).delete
+    end
+  end
 
   private
 
   def none_recursive
-    errors.add(:inviter, "You can't add yourself") if invitee == inviter
-    errors.add(:invitee, "can't be missing") if invitee.nil?
-    errors.add(:inviter, "can't be missing") if inviter.nil?
+    return unless user_id == friend_id
+
+    errors.add(:user_id, "You can't add yourself")
   end
 
   def none_repeating
-    return unless inviter.friends_unfiltered.include?(invitee)
+    return unless Friendship.find_by(user_id: user_id, friend_id: friend_id)
 
-    errors.add(:inviter, 'Request already sent')
+    errors.add(:user_id, 'Request already sent')
   end
 end
