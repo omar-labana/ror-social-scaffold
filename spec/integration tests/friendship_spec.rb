@@ -22,7 +22,8 @@ RSpec.describe 'friendship model associations', type: :system do
   end
 
   it 'removes a user from your friend list' do
-    Friendship.create(inviter_id: User.first.id, invitee_id: User.second.id, accepted: true)
+    Friendship.safe_create(User.first.id, User.second.id)
+    Friendship.find_by(user_id: User.second.id, friend_id: User.first.id).update(status: true)
     visit "#{root_path}users/#{User.second.id}"
     fill_in 'Email', with: 'omar@mero.com'
     fill_in 'Password', with: '123456789'
@@ -31,18 +32,15 @@ RSpec.describe 'friendship model associations', type: :system do
   end
 
   it 'shows a call to action button when no friendship' do
-    Friendship.create(inviter_id: User.first.id, invitee_id: User.second.id, accepted: true)
     visit "#{root_path}users/#{User.second.id}"
     fill_in 'Email', with: 'omar@mero.com'
     fill_in 'Password', with: '123456789'
     click_button 'Log in'
-    visit "#{root_path}users/#{User.second.id}"
-    click_link 'End friendship'
     expect(page).to have_content('Invite to friendship')
   end
 
   it 'accepts an invitation' do
-    Friendship.create(inviter_id: User.second.id, invitee_id: User.first.id, accepted: false)
+    Friendship.safe_create(User.second.id, User.first.id)
     visit "#{root_path}users/#{User.second.id}"
     fill_in 'Email', with: 'omar@mero.com'
     fill_in 'Password', with: '123456789'
@@ -52,7 +50,7 @@ RSpec.describe 'friendship model associations', type: :system do
 
   # same as test 2
   it 'end friendship' do
-    Friendship.create(inviter_id: User.second.id, invitee_id: User.first.id, accepted: false)
+    Friendship.safe_create(User.second.id, User.first.id)
     visit "#{root_path}users/#{User.second.id}"
     fill_in 'Email', with: 'omar@mero.com'
     fill_in 'Password', with: '123456789'

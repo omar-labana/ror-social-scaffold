@@ -13,28 +13,29 @@ RSpec.describe Friendship do
 
   describe 'creation' do
     it 'valid association between two existing users' do
-      friendship = Friendship.new(inviter_id: User.first.id, invitee_id: User.second.id, accepted: false)
-      expect(friendship.valid?).to eq(true)
+      Friendship.safe_create(User.first.id, User.second.id)
+      expect(User.first.friends).to eq([User.second])
     end
 
     it 'validates alrady existing request' do
-      Friendship.create(inviter_id: User.first.id, invitee_id: User.second.id, accepted: false)
-      friendship = Friendship.new(inviter_id: User.second.id, invitee_id: User.first.id, accepted: false)
+      Friendship.safe_create(User.first.id, User.second.id)
+      friendship = Friendship.new(user_id: User.second.id, friend_id: User.first.id, status: false)
       expect(friendship.valid?).to eq(false)
     end
 
     it 'validates recursive relations' do
-      friendship = Friendship.new(inviter_id: User.first.id, invitee_id: User.first.id, accepted: false)
+      friendship = Friendship.new(user_id: User.first.id, friend_id: User.first.id, status: false)
       friendship.valid?
-      expect(friendship.errors.full_messages).to eq(["Inviter You can't add yourself"])
+      expect(friendship.errors.full_messages).to eq(["User You can't add yourself"])
     end
   end
 
   describe 'validates table for correct associations' do
     it 'updates a friendship to accept a friendship' do
-      friendship = Friendship.create!(inviter_id: User.first.id, invitee_id: User.second.id, accepted: false)
-      friendship.update(accepted: true)
-      expect(friendship.accepted).to eq(true)
+      Friendship.safe_create(User.first.id, User.second.id)
+      friendship = Friendship.find_by(user_id: User.second.id, friend_id: User.first.id)
+      friendship.update(status: true)
+      expect(friendship.status).to eq(true)
     end
   end
 end
