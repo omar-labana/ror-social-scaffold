@@ -10,7 +10,7 @@ class UsersController < ApplicationController
     @posts = @user.posts.ordered_by_most_recent
     @pending_inviters = current_user.pending_inviters
     @pending_invitees = current_user.pending_invitees
-    # TODO => Fix layout + pivot
+    # TODO: => Fix layout + pivot
     @accepted_friends = current_user.accepted_friends
   end
 end
