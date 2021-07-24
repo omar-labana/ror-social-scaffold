@@ -11,21 +11,22 @@ class User < ApplicationRecord
   has_many :friendships
   has_many :friends, through: :friendships, class_name: 'User'
 
+  has_many :pending_friendships, -> { where status: false }, class_name: 'Friendship', foreign_key: 'user_id'
+  has_many :pending_invitees, through: :pending_friendships, source: :friend
+
+  has_many :inverse_friendships, class_name: 'Friendship', foreign_key: 'friend_id'
+
   validates :name, presence: true, length: { in: 3..20 }
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }, uniqueness: true
   validates :password, presence: true
   validates :password_confirmation, presence: true
 
-  def pending_inviters
-    pending_inviters_ids = Friendship.where(user_id: id, friend_id: User.find(id).friends.select(:id),
-                                            status: false).select(:friend_id)
-    friends.where(id: pending_inviters_ids)
+  def pending_invitees
+    inverse_friendships.map { |friendship| friendship.user unless friendship.status }.compact
   end
 
-  def pending_invitees
-    pending_invitees_ids = Friendship.where(user_id: User.find(id).friends.select(:id), friend_id: id,
-                                            status: false).select(:user_id)
-    friends.where(id: pending_invitees_ids)
+  def pending_inviters
+    friendships.map { |friendship| friendship.friend unless friendship.status }.compact
   end
 
   def accepted_friends
