@@ -83,4 +83,3 @@ production:
   database: ror_social_scaffold_production
   username: ror_social_scaffold
   password: <%= ENV['ROR_SOCIAL_SCAFFOLD_DATABASE_PASSWORD'] %>
-{"mode":"full","isActive":false}
